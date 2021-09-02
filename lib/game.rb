@@ -1,4 +1,5 @@
 require_relative 'displayable'
+require 'yaml'
 
 class Game
   include Displayable
@@ -10,7 +11,6 @@ class Game
     @word_length = [min_word_length, max_word_length]
     @lives_remaining = lives
     @secret_word = random_word.upcase
-    @turn_number = 1
     @game_won = false
     @placeholder_char = '_'
     @correct_guesses = []
@@ -24,19 +24,22 @@ class Game
     end
   end
 
-  def player_input
+  def get_player_input
     user_input_prompt
-    while (letter = gets.chomp.upcase)
-      break letter if valid_input?(letter)
+    while (input = gets.chomp.upcase)
+      break input if valid_input?(input)
 
       warning_prompt
+      user_input_prompt
     end
   end
 
   def valid_input?(string)
-    if string.match?(/[A-Z]/) && string.length.eql?(1) &&
-         !@correct_guesses.include?(string) &&
-         !@incorrect_guesses.include?(string)
+    if (
+         string.match?(/^[A-Z]$|^SAVE$|^QUIT$/) &&
+           !@correct_guesses.include?(string) &&
+           !@incorrect_guesses.include?(string)
+       )
       true
     else
       false
@@ -63,21 +66,39 @@ class Game
 
   def play
     intro_message
+    display_output
     player_turn until @lives_remaining.zero? || game_won?
     game_over_message(@game_won, @secret_word)
   end
 
   def player_turn
-    display_output
-    player_guess = player_input
-    evaluate_guess(player_guess)
-    @turn_number += 1
+    player_input = get_player_input
+
+    case player_input
+    when 'SAVE'
+    when 'QUIT'
+    else
+      evaluate_guess(player_input)
+      display_output
+    end
   end
 
   def game_won?
     @game_won = true unless @output_array.include?(@placeholder_char)
   end
-end
 
-@game = Game.new(6, 5, 12)
-# puts @game.random_word
+  def restart
+    restart_message
+    gets.chomp.downcase == 'y'
+  end
+
+  def end
+    exit_message
+  end
+
+  def save; end
+
+  def serialize
+    YAML.dump(self)
+  end
+end

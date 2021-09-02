@@ -5,20 +5,22 @@ module Displayable
 
   def display_output
     puts "
-    Turn: #{@turn_number}
     Lives: #{(HEART.red + ' ') * @lives_remaining}
-    Incorrect Guesses: #{@incorrect_guesses.join(' ')}
+    Incorrect Guesses: #{@incorrect_guesses.join(' ').red}
 
-    #{@output_array.join(' ')}
+    #{@output_array.join(' ').green}
     "
   end
 
   def user_input_prompt
-    puts "\nPlease enter a letter (case does not matter): "
+    puts <<~HEREDOC
+    (At any time you may enter 'save' to save and exit, or 'quit' to exit the game without saving)
+    Please enter a previously unused letter to make a guess: 
+    HEREDOC
   end
 
   def warning_prompt
-    puts "\nSorry, that guess is invalid. Please try again and ensure the input is a single unused alphabetical character: "
+    puts "\nSorry, that guess is invalid".red
   end
 
   def correct_guess_prompt(letter, occurances)
@@ -34,15 +36,29 @@ module Displayable
   end
 
   def intro_message
-    puts 'Welcome to HANGMAN!'
+    puts <<~HEREDOC
+    
+    #{'-' * 100}
+
+    Welcome to HANGMAN!
+    
+    HEREDOC
   end
 
   def game_over_message(game_won, secret_word)
     case game_won
     when true
-      puts "\nCongrats, you won! The secret word was #{secret_word}"
+      puts "\nCongrats, you won! The secret word was #{secret_word.green}"
     when false
-      puts "\nSorry, you lost. The secret word was #{secret_word}"
+      puts "\nSorry, you lost. The secret word was #{secret_word.red}"
     end
+  end
+
+  def restart_message
+    puts "\nWould you like to play again? Enter (Y/y) to start a new game or any other key to quit:"
+  end
+
+  def exit_message
+    puts "\nThanks for playing!"
   end
 end
