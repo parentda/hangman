@@ -1,4 +1,7 @@
+require_relative 'displayable'
+
 class Game
+  include Displayable
   attr_accessor :previous_guesses, :secret_word
 
   @@dictionary = File.readlines('hangman_dictionary.txt', chomp: true)[0..100]

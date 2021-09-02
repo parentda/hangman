@@ -1,8 +1,12 @@
+require_relative 'string_extensions'
+
 module Displayable
+  HEART = "\u2665".freeze
+
   def display_output
     puts "
     Turn: #{@turn_number}
-    Lives: #{@lives_remaining}
+    Lives: #{(HEART.red + ' ') * @lives_remaining}
     Incorrect Guesses: #{@incorrect_guesses.join(' ')}
 
     #{@output_array.join(' ')}
