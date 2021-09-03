@@ -6,14 +6,21 @@ lives = 6
 
 loop do
   puts Game.intro_message(min_word_length, max_word_length, lives)
-  game_mode =
-    Game.user_input(Game.game_mode_prompt, Game.warning_prompt_invalid, /[1-2]/)
   game =
-    if game_mode == '1'
-      puts Game.new_game_prompt
-      Game.new(min_word_length, max_word_length, lives)
-    else
-      Game.open_file
+    loop do
+      game_mode =
+        Game.user_input(
+          Game.game_mode_prompt,
+          Game.warning_prompt_invalid,
+          /[1-2]/
+        )
+      if game_mode == '1'
+        puts Game.new_game_prompt
+        break Game.new(min_word_length, max_word_length, lives)
+      else
+        loaded_game = Game.open_file
+        break loaded_game unless loaded_game.nil?
+      end
     end
   game.play
   break game.end unless game.restart

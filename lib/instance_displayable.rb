@@ -45,7 +45,7 @@ module InstanceDisplayable
   end
 
   def restart_message
-    "\n\nWould you like to play again? Enter (Y/y) to start a new game or any other key to quit:"
+    "\n\nWould you like to play again? Enter (Y/y) to start a new game/load a saved game, or any other key to quit:"
   end
 
   def exit_message

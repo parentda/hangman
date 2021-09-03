@@ -132,6 +132,10 @@ class Game
 
   def self.open_file
     saved_games = Dir.glob('*.yaml', base: 'saved_games')
+    if saved_games.empty?
+      puts no_saved_games_prompt
+      return nil
+    end
     saved_games_hash = Hash[(1..saved_games.size).zip saved_games]
     puts display_saved_games(saved_games_hash)
     file_num =

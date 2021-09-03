@@ -1,0 +1,22 @@
+--- !ruby/object:Game
+word_length:
+- 5
+- 12
+lives_remaining: 6
+secret_word: ABBREVIATE
+game_won: false
+placeholder_char: _
+correct_guesses:
+- A
+incorrect_guesses: []
+output_array:
+- A
+- _
+- _
+- _
+- _
+- _
+- _
+- A
+- _
+- _
