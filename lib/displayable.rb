@@ -19,8 +19,14 @@ module Displayable
     HEREDOC
   end
 
+  def self.display_saved_games(hash)
+    output = ''
+    hash.each { |key, value| output += "#{key.to_s.blue}:  #{value}\n" }
+    output
+  end
+
   def warning_prompt_invalid
-    "\nSorry, that guess is invalid".red
+    "\nSorry, that input is invalid".red
   end
 
   def warning_prompt_used(letter)
@@ -64,5 +70,9 @@ module Displayable
 
   def exit_message
     "\nThanks for playing!"
+  end
+
+  def save_game_message(filepath)
+    "\nYour game has been saved as:  #{filepath.blue}"
   end
 end

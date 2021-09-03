@@ -3,6 +3,7 @@ require 'yaml'
 
 class Game
   include Displayable
+  extend Displayable
   attr_accessor :previous_guesses, :secret_word
 
   @@dictionary = File.readlines('hangman_dictionary.txt', chomp: true)[0..100]
@@ -81,8 +82,11 @@ class Game
   def play
     puts intro_message
     puts display_output
-    player_turn until @lives_remaining.zero? || game_won?
-    puts game_over_message(@game_won, @secret_word)
+    while player_turn
+      if @lives_remaining.zero? || game_won?
+        break puts game_over_message(@game_won, @secret_word)
+      end
+    end
   end
 
   def player_turn
@@ -90,10 +94,14 @@ class Game
 
     case player_input
     when 'SAVE'
+      save
+      false
     when 'QUIT'
+      false
     else
       evaluate_guess(player_input)
       puts display_output
+      true
     end
   end
 
@@ -110,12 +118,27 @@ class Game
     puts exit_message
   end
 
-  def save; end
+  def save
+    serialized_file = serialize
+    Dir.mkdir('saved_games') unless Dir.exist?('saved_games')
+    filename = "#{@output_array.join(' ')}.yaml"
+    filepath = "saved_games/#{filename}"
+    File.write(filepath, serialized_file)
+    puts save_game_message(filename)
+  end
 
   def serialize
     YAML.dump(self)
   end
 
-  def self.load(filename); end
-  #make a more generic user input function? user_input(prompt, valid_inputs, warning_message)
+  def self.open
+    saved_games = Dir.glob('*.yaml', base: 'saved_games')
+    saved_games_hash = Hash[(1..saved_games.size).zip saved_games]
+    puts display_saved_games(saved_games_hash)
+  end
+
+  def self.load(filepath)
+    saved_game = File.read(filepath)
+    YAML.load saved_game
+  end
 end
