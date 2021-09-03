@@ -67,6 +67,20 @@ class Game
     Game.user_input(Game.game_mode_prompt, Game.warning_prompt_invalid, /[1-2]/)
   end
 
+  def self.create_game(min_word_length, max_word_length, lives)
+    puts intro_message(min_word_length, max_word_length, lives)
+    loop do
+      mode = game_mode
+      if mode == '1'
+        puts new_game_prompt
+        return new(min_word_length, max_word_length, lives)
+      else
+        loaded_game = open_saved_file
+        return loaded_game unless loaded_game.nil?
+      end
+    end
+  end
+
   def random_word
     while (word = @@dictionary.sample)
       return word if word.length.between?(@word_length[0], @word_length[1])
