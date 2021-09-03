@@ -21,13 +21,14 @@ class Game
   end
 
   def self.user_input(prompt, warning, match_criteria)
-    loop do
-      puts prompt
-      input = gets.chomp.upcase
-      break input if input.match?(match_criteria)
+    puts prompt
+    input = gets.chomp.upcase
+    raise warning unless input.match?(match_criteria)
 
-      puts warning
-    end
+    input
+  rescue StandardError => e
+    puts e
+    retry
   end
 
   def self.open_saved_file
