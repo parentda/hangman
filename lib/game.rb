@@ -7,7 +7,7 @@ class Game
   extend ClassDisplayable
   attr_accessor :previous_guesses, :secret_word
 
-  @@dictionary = File.readlines('hangman_dictionary.txt', chomp: true)[0..100]
+  @@dictionary = File.readlines('hangman_dictionary.txt', chomp: true)
 
   def initialize(min_word_length, max_word_length, lives)
     @word_length = [min_word_length, max_word_length]
@@ -30,27 +30,37 @@ class Game
     end
   end
 
-  def self.open_file
+  def self.open_saved_file
+    saved_games = find_saved_files
+    return saved_games if saved_games.nil?
+
+    display_saved_files(saved_games)
+    file_num = get_file_num(saved_games)
+    puts load_game_prompt(saved_games[file_num])
+    load_saved_file("saved_games/#{saved_games[file_num]}")
+  end
+
+  def self.find_saved_files
     saved_games = Dir.glob('*.yaml', base: 'saved_games')
     if saved_games.empty?
       puts no_saved_games_prompt
       return nil
     end
-    saved_games_hash = Hash[(1..saved_games.size).zip saved_games]
-    puts display_saved_games(saved_games_hash)
-    file_num =
-      user_input(
-        saved_game_prompt,
-        warning_prompt_invalid,
-        /#{saved_games_hash.keys}/
-      ).to_i
-    puts load_game_prompt(saved_games_hash[file_num])
-    load_file("saved_games/#{saved_games_hash[file_num]}")
+    Hash[(1..saved_games.size).zip saved_games]
   end
 
-  def self.load_file(filepath)
+  def self.display_saved_files(hash)
+    puts display_saved_games(hash)
+  end
+
+  def self.load_saved_file(filepath)
     saved_game = File.read(filepath)
     YAML.load(saved_game)
+  end
+
+  def self.get_file_num(games_list)
+    user_input(saved_game_prompt, warning_prompt_invalid, /#{games_list.keys}/)
+      .to_i
   end
 
   def self.game_mode
