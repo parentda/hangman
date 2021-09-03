@@ -12,6 +12,7 @@ class Game
     @lives_remaining = lives
     @secret_word = random_word.upcase
     @game_won = false
+    @game_in_progress = false
     @placeholder_char = '_'
     @correct_guesses = []
     @incorrect_guesses = []
@@ -24,20 +25,33 @@ class Game
     end
   end
 
-  def get_player_input
-    user_input_prompt
-    while (input = gets.chomp.upcase)
-      break input if valid_input?(input)
+  def user_input(prompt, warning, regex_match)
+    loop do
+      puts prompt
+      input = gets.chomp.upcase
+      break input if input.match?(regex_match)
 
-      warning_prompt
-      user_input_prompt
+      puts warning
     end
   end
 
-  def valid_input?(string)
+  def get_player_input
+    loop do
+      input =
+        user_input(
+          user_input_prompt,
+          warning_prompt_invalid,
+          /^[A-Z]$|^SAVE$|^QUIT$/
+        )
+      return input if unused_input?(input)
+
+      puts warning_prompt_used(input)
+    end
+  end
+
+  def unused_input?(string)
     if (
-         string.match?(/^[A-Z]$|^SAVE$|^QUIT$/) &&
-           !@correct_guesses.include?(string) &&
+         !@correct_guesses.include?(string) &&
            !@incorrect_guesses.include?(string)
        )
       true
@@ -56,19 +70,19 @@ class Game
     if @secret_word.include?(letter)
       @correct_guesses << letter
       update_output_array(letter)
-      correct_guess_prompt(letter, @secret_word.count(letter))
+      puts correct_guess_prompt(letter, @secret_word.count(letter))
     else
       @incorrect_guesses << letter
       @lives_remaining -= 1
-      incorrect_guess_prompt(letter)
+      puts incorrect_guess_prompt(letter)
     end
   end
 
   def play
-    intro_message
-    display_output
+    puts intro_message
+    puts display_output
     player_turn until @lives_remaining.zero? || game_won?
-    game_over_message(@game_won, @secret_word)
+    puts game_over_message(@game_won, @secret_word)
   end
 
   def player_turn
@@ -79,7 +93,7 @@ class Game
     when 'QUIT'
     else
       evaluate_guess(player_input)
-      display_output
+      puts display_output
     end
   end
 
@@ -88,12 +102,12 @@ class Game
   end
 
   def restart
-    restart_message
+    puts restart_message
     gets.chomp.downcase == 'y'
   end
 
   def end
-    exit_message
+    puts exit_message
   end
 
   def save; end
@@ -101,4 +115,7 @@ class Game
   def serialize
     YAML.dump(self)
   end
+
+  def self.load(filename); end
+  #make a more generic user input function? user_input(prompt, valid_inputs, warning_message)
 end
