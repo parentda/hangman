@@ -8,12 +8,7 @@ loop do
   puts Game.intro_message(min_word_length, max_word_length, lives)
   game =
     loop do
-      game_mode =
-        Game.user_input(
-          Game.game_mode_prompt,
-          Game.warning_prompt_invalid,
-          /[1-2]/
-        )
+      game_mode = Game.game_mode
       if game_mode == '1'
         puts Game.new_game_prompt
         break Game.new(min_word_length, max_word_length, lives)

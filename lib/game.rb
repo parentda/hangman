@@ -20,12 +20,6 @@ class Game
     @output_array = Array.new(@secret_word.length, @placeholder_char)
   end
 
-  def random_word
-    while (word = @@dictionary.sample)
-      return word if word.length.between?(@word_length[0], @word_length[1])
-    end
-  end
-
   def self.user_input(prompt, warning, match_criteria)
     loop do
       puts prompt
@@ -33,6 +27,39 @@ class Game
       break input if input.match?(match_criteria)
 
       puts warning
+    end
+  end
+
+  def self.open_file
+    saved_games = Dir.glob('*.yaml', base: 'saved_games')
+    if saved_games.empty?
+      puts no_saved_games_prompt
+      return nil
+    end
+    saved_games_hash = Hash[(1..saved_games.size).zip saved_games]
+    puts display_saved_games(saved_games_hash)
+    file_num =
+      user_input(
+        saved_game_prompt,
+        warning_prompt_invalid,
+        /#{saved_games_hash.keys}/
+      ).to_i
+    puts load_game_prompt(saved_games_hash[file_num])
+    load_file("saved_games/#{saved_games_hash[file_num]}")
+  end
+
+  def self.load_file(filepath)
+    saved_game = File.read(filepath)
+    YAML.load(saved_game)
+  end
+
+  def self.game_mode
+    Game.user_input(Game.game_mode_prompt, Game.warning_prompt_invalid, /[1-2]/)
+  end
+
+  def random_word
+    while (word = @@dictionary.sample)
+      return word if word.length.between?(@word_length[0], @word_length[1])
     end
   end
 
@@ -128,28 +155,5 @@ class Game
 
   def serialize
     YAML.dump(self)
-  end
-
-  def self.open_file
-    saved_games = Dir.glob('*.yaml', base: 'saved_games')
-    if saved_games.empty?
-      puts no_saved_games_prompt
-      return nil
-    end
-    saved_games_hash = Hash[(1..saved_games.size).zip saved_games]
-    puts display_saved_games(saved_games_hash)
-    file_num =
-      user_input(
-        saved_game_prompt,
-        warning_prompt_invalid,
-        /#{saved_games_hash.keys}/
-      ).to_i
-    puts Game.load_game_prompt(saved_games_hash[file_num])
-    load_file("saved_games/#{saved_games_hash[file_num]}")
-  end
-
-  def self.load_file(filepath)
-    saved_game = File.read(filepath)
-    YAML.load(saved_game)
   end
 end
