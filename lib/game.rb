@@ -1,19 +1,19 @@
-require_relative 'displayable'
+require_relative 'instance_displayable'
+require_relative 'class_displayable'
 require 'yaml'
 
 class Game
-  include Displayable
-  extend Displayable
+  include InstanceDisplayable
+  extend ClassDisplayable
   attr_accessor :previous_guesses, :secret_word
 
   @@dictionary = File.readlines('hangman_dictionary.txt', chomp: true)[0..100]
 
-  def initialize(lives, min_word_length, max_word_length)
+  def initialize(min_word_length, max_word_length, lives)
     @word_length = [min_word_length, max_word_length]
     @lives_remaining = lives
     @secret_word = random_word.upcase
     @game_won = false
-    @game_in_progress = false
     @placeholder_char = '_'
     @correct_guesses = []
     @incorrect_guesses = []
@@ -26,11 +26,11 @@ class Game
     end
   end
 
-  def user_input(prompt, warning, regex_match)
+  def self.user_input(prompt, warning, match_criteria)
     loop do
       puts prompt
       input = gets.chomp.upcase
-      break input if input.match?(regex_match)
+      break input if input.match?(match_criteria)
 
       puts warning
     end
@@ -39,9 +39,9 @@ class Game
   def get_player_input
     loop do
       input =
-        user_input(
+        Game.user_input(
           user_input_prompt,
-          warning_prompt_invalid,
+          Game.warning_prompt_invalid,
           /^[A-Z]$|^SAVE$|^QUIT$/
         )
       return input if unused_input?(input)
@@ -80,7 +80,6 @@ class Game
   end
 
   def play
-    puts intro_message
     puts display_output
     while player_turn
       if @lives_remaining.zero? || game_won?
@@ -131,14 +130,22 @@ class Game
     YAML.dump(self)
   end
 
-  def self.open
+  def self.open_file
     saved_games = Dir.glob('*.yaml', base: 'saved_games')
     saved_games_hash = Hash[(1..saved_games.size).zip saved_games]
     puts display_saved_games(saved_games_hash)
+    file_num =
+      user_input(
+        saved_game_prompt,
+        warning_prompt_invalid,
+        /#{saved_games_hash.keys}/
+      ).to_i
+    puts Game.load_game_prompt(saved_games_hash[file_num])
+    load_file("saved_games/#{saved_games_hash[file_num]}")
   end
 
-  def self.load(filepath)
+  def self.load_file(filepath)
     saved_game = File.read(filepath)
-    YAML.load saved_game
+    YAML.load(saved_game)
   end
 end

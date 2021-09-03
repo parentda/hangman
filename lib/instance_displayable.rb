@@ -1,6 +1,6 @@
 require_relative 'string_extensions'
 
-module Displayable
+module InstanceDisplayable
   HEART = "\u2665".freeze
 
   def display_output
@@ -19,16 +19,6 @@ module Displayable
     HEREDOC
   end
 
-  def self.display_saved_games(hash)
-    output = ''
-    hash.each { |key, value| output += "#{key.to_s.blue}:  #{value}\n" }
-    output
-  end
-
-  def warning_prompt_invalid
-    "\nSorry, that input is invalid".red
-  end
-
   def warning_prompt_used(letter)
     "\nSorry, #{letter} has already been guessed".red
   end
@@ -45,16 +35,6 @@ module Displayable
     "\nUnfortunately there are no #{letter}'s in the mystery word."
   end
 
-  def intro_message
-    <<~HEREDOC
-    
-    #{'-' * 100}
-
-    Welcome to HANGMAN!
-    
-    HEREDOC
-  end
-
   def game_over_message(game_won, secret_word)
     case game_won
     when true
@@ -65,7 +45,7 @@ module Displayable
   end
 
   def restart_message
-    "\nWould you like to play again? Enter (Y/y) to start a new game or any other key to quit:"
+    "\n\nWould you like to play again? Enter (Y/y) to start a new game or any other key to quit:"
   end
 
   def exit_message
