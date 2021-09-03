@@ -8,6 +8,7 @@ class Game
   attr_accessor :previous_guesses, :secret_word
 
   @@dictionary = File.readlines('hangman_dictionary.txt', chomp: true)
+  @@saved_games_folder = 'saved_games'
 
   def initialize(min_word_length, max_word_length, lives)
     @word_length = [min_word_length, max_word_length]
@@ -38,11 +39,11 @@ class Game
     display_saved_files(saved_games)
     file_num = get_file_num(saved_games)
     puts load_game_prompt(saved_games[file_num])
-    load_saved_file("saved_games/#{saved_games[file_num]}")
+    load_saved_file("#{@@saved_games_folder}/#{saved_games[file_num]}")
   end
 
   def self.find_saved_files
-    saved_games = Dir.glob('*.yaml', base: 'saved_games')
+    saved_games = Dir.glob('*.yaml', base: @@saved_games_folder)
     if saved_games.empty?
       puts no_saved_games_prompt
       return nil
@@ -164,9 +165,9 @@ class Game
 
   def save
     serialized_file = serialize
-    Dir.mkdir('saved_games') unless Dir.exist?('saved_games')
+    Dir.mkdir(@@saved_games_folder) unless Dir.exist?(@@saved_games_folder)
     filename = "#{@output_array.join(' ')}.yaml"
-    filepath = "saved_games/#{filename}"
+    filepath = "#{@@saved_games_folder}/#{filename}"
     File.write(filepath, serialized_file)
     puts save_game_message(filename)
   end
