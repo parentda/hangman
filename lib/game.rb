@@ -88,14 +88,7 @@ class Game
   end
 
   def unused_input?(string)
-    if (
-         !@correct_guesses.include?(string) &&
-           !@incorrect_guesses.include?(string)
-       )
-      true
-    else
-      false
-    end
+    !@correct_guesses.include?(string) && !@incorrect_guesses.include?(string)
   end
 
   def update_output_array(letter)
